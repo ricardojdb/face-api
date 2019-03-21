@@ -25,55 +25,29 @@ def load_model(path):
 def decode_img(data):
     return Image.open(BytesIO(base64.b64decode(data)))
 
-def compose_transforms(meta, resize=256, center_crop=True):
-    """Compose preprocessing transforms for model
-    The imported models use a range of different preprocessing options,
-    depending on how they were originally trained. Models trained in MatConvNet
-    typically require input images that have been scaled to [0,255], rather
-    than the [0,1] range favoured by PyTorch.
-    Args:
-        meta (dict): model preprocessing requirements
-        resize (int) [256]: resize the input image to this size
-        center_crop (bool) [True]: whether to center crop the image
-    Return:
-        (transforms.Compose): Composition of preprocessing transforms
-    """
-    normalize = transforms.Normalize(mean=meta['mean'], std=meta['std'])
-    im_size = meta['imageSize']
-    assert im_size[0] == im_size[1], 'expected square image size'
-    if center_crop:
-        transform_list = [transforms.Resize(resize),
-                          transforms.CenterCrop(size=(im_size[0], im_size[1]))]
-    else:
-        transform_list = [transforms.Resize(size=(im_size[0], im_size[1]))]
-    transform_list += [transforms.ToTensor()]
-    if meta['std'] == [1,1,1]: # common amongst mcn models
-        transform_list += [lambda x: x * 255.0]
-    transform_list.append(normalize)
-    return transforms.Compose(transform_list)
-
-def normalize_image(img, mean, std):
-    x = np.array(img)
-
-    for i in range(3):
-        x[:,:,i] = (x[:,:,i] - mean[i]) / std[i]
-
-    return Image.fromarray(x).convert("RGB")
-
-
 def preprocess(x, meta):
-    x = compose_transforms(meta)(x)
-    x = x.unsqueeze(0).to(device)
-    return x
+    img = x.resize((224,224))
+    img = np.array(img, dtype=np.float32)
+    img = img[:,:,::-1]
+    img -= meta["mean"]
+    img = img.transpose(2, 0, 1)  # C x H x W
+    print(img.shape)
+    img = torch.from_numpy(img.copy())
+
+    return img.unsqueeze(0).to(device)
+
+def l2_normalize(x, axis=-1, epsilon=1e-10):
+    output = x / np.sqrt(np.maximum(np.sum(np.square(x), axis=axis, keepdims=True), epsilon))
+    return output
 
 def predict_embed(x, model):
     embed, _  = model(x)
     
     if embed.is_cuda:
         embed = embed.cpu()
-    embed = np.reshape(embed.detach().numpy(), (-1, 1))
+    embed = np.reshape(embed.detach().numpy(), (-1,))
     
-    return embed
+    return l2_normalize(embed)
 
 def who_is_it(preds, database):
     min_dist = 1e4
@@ -92,11 +66,9 @@ def who_is_it(preds, database):
 
 def model_predict(data, model, database):
     img = decode_img(data)
+    img = preprocess(img, model.meta)
 
-    x = preprocess(img, model.meta)
-    
-    preds = predict_embed(x, model)
-    
+    preds = predict_embed(img, model)   
     label, dist = who_is_it(preds, database)
 
     out = {'label':label, 'dist':'{:.3f}'.format(dist)}
@@ -108,7 +80,10 @@ def init_dataset(dataset_path, model):
     database = {}
 
     for path in os.listdir(dataset_path):
-        x = Image.open(dataset_path+path).convert("RGB")        
+        try:
+            x = Image.open(dataset_path+path).convert("RGB")
+        except:
+            continue
         x = preprocess(x, model.meta)
         
         embed = predict_embed(x, model)

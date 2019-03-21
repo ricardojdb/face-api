@@ -1,14 +1,6 @@
-from models.resnet50_ft_dag import resnet50_ft_dag
 from flask import Flask, request
-from io import BytesIO
-from PIL import Image
-
 import numpy as np
-import torchvision
 import torch
-import base64
-import json
-import os
 
 import utils
 
@@ -26,6 +18,4 @@ def predict():
 	return output	
 
 if __name__ == "__main__":
-
-	# app.run(debug=True)
 	app.run(host='0.0.0.0', port=7000)
