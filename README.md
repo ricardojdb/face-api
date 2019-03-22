@@ -12,6 +12,7 @@ Face API with Docker, Tensorflow and PyTorch
 * CUDA 9 [Guide](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html)
 
 ### How to use:
+Make sure the models and images are inside their respective folders.
 
 Run all the docker syncronically:
 ```
