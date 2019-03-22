@@ -7,13 +7,13 @@ import utils
 
 app = Flask(__name__)
 
-model = utils.init_model("models/")
+face_detector = utils.FaceDetector("models/")
 
 @app.route('/predict/',methods=['GET','POST'])
 def predict():
 
 	data = request.get_data()
-	output = utils.model_predict(data, model)
+	output = face_detector.get_predict(data)
 
 	return output	
 

@@ -11,11 +11,15 @@ img.save(buffer, "JPEG")
 img_str = base64.b64encode(buffer.getvalue())
 
 for i in range(4):
-	r = requests.get("http://192.168.8.100:7{0:03}/predict/".format(i), data=img_str)
+    try:
+        r = requests.get("http://192.168.8.100:7{0:03}/predict/".format(i), data=img_str)
+    except Exception as e:
+        print("Error with API in port 7{0:03}".format(i))
+        continue
 
-	status = r.status_code
-	if status != 200:
-		print("Error with API in port 7{0:03}".format(i))
-		break
+    status = r.status_code
+    if status != 200:
+        print("Error with API in port 7{0:03}".format(i))
+        continue
 
-	print(r.json())
+    print(r.json())

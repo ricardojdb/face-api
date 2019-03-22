@@ -6,9 +6,53 @@ import numpy as np
 
 import base64
 import json
+import os
 
-def decode_img(data):
-    return Image.open(BytesIO(base64.b64decode(data)))
+class FaceDetector(object):
+    """
+    Initializes and handles de face detection model in tensorflow
+    """
+    def __init__(self, model_path):
+        self.model_path = model_path
+        self.model = self.init_model()
+        
+    def decode_img(self, data):
+        return Image.open(BytesIO(base64.b64decode(data)))
+
+    def init_model(self):
+        model_name = "frozen_inference_graph_face.pb"
+        return TensoflowFaceDector(os.path.join(self.model_path, model_name))
+
+    def get_predict(self, data):
+        """
+        Runs the model and creates a json output
+        Parameters:
+        - Data: string data from the request.
+        - 
+        """
+
+        img = self.decode_img(data)
+
+        detections = self.model.run(img)    
+
+        face_list = []
+        for i in range(0, int(detections[-1][0])):
+            # extract the confidence (i.e., probability) associated with the prediction
+            confidence = detections[1][0,i]
+
+            # filter out weak detections by ensuring the `confidence` is greater than the minimum confidence
+            if confidence > 0.3:
+                # compute the (x, y)-coordinates of the bounding box for the object
+                box =  detections[0][0,i] 
+                (ymin, xmin, ymax, xmax) = box
+
+                face_json = {'confidence': float(confidence),
+                             'box': [float(xmin), float(ymin), float(xmax), float(ymax)]}
+
+                face_list.append(face_json)
+
+        return json.dumps(face_list)
+        
 
 class TensoflowFaceDector(object):
     def __init__(self, PATH_TO_CKPT):
@@ -57,34 +101,7 @@ class TensoflowFaceDector(object):
 
         return (boxes, scores, classes, num_detections)
 
-def init_model(base_path):
-    model_path = "frozen_inference_graph_face.pb"
-    return TensoflowFaceDector(base_path+model_path)
 
-def model_predict(data, model):
-    
-    img = decode_img(data)
-    
-    detections = model.run(img)    
-    
-    face_list = []
-    for i in range(0, int(detections[-1][0])):
-        # extract the confidence (i.e., probability) associated with the prediction
-        confidence = detections[1][0,i]
-        
-        # filter out weak detections by ensuring the `confidence` is greater than the minimum confidence
-        if confidence > 0.3:
-            # compute the (x, y)-coordinates of the bounding box for the object
-            box =  detections[0][0,i] 
-            (ymin, xmin, ymax, xmax) = box
-
-            face_json = {'confidence': float(confidence),
-                         'box': [float(xmin), float(ymin), float(xmax), float(ymax)]}
-            
-            face_list.append(face_json)
-
-    
-    return json.dumps(face_list)
 
 
     

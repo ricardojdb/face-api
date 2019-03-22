@@ -6,14 +6,13 @@ import utils
 
 app = Flask(__name__)
 
-model = utils.load_model("models/resnet50_ft_dag.pth")
-database = utils.init_dataset("images/", model)
+face_recognition = utils.FaceRecognition("models/", "images/")
 
 @app.route('/predict/',methods=['GET','POST'])
 def predict():
 
 	data = request.get_data()
-	output = utils.model_predict(data, model, database)
+	output = face_recognition.model_predict(data)
 
 	return output	
 

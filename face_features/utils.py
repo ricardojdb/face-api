@@ -1,68 +1,69 @@
-from io import BytesIO
-from PIL import Image
-import numpy as np
-import base64
-import json
-import os 
-
-import logging
-import sys
-import numpy as np
-import tensorflow as tf
-from keras.models import Model
 from keras.layers import Input, Activation, add, Dense, Flatten, Dropout
 from keras.layers.convolutional import Conv2D, AveragePooling2D
 from keras.layers.normalization import BatchNormalization
 from keras.regularizers import l2
 from keras import backend as K
+from keras.models import Model
+from io import BytesIO
+from PIL import Image
 
+import tensorflow as tf
+import numpy as np
+import logging
+import base64
+import json
+import sys
+import os 
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
-
 K.set_session(tf.Session(config=config))
 
-def decode_img(data):
-    return Image.open(BytesIO(base64.b64decode(data)))
+class FaceFeatures(object):
+    def __init__(self, model_path):
+        self.model_path = model_path
+        self.model = self.init_model()
+        
+    def decode_img(self, data):
+        return Image.open(BytesIO(base64.b64decode(data)))
 
-def init_model(base_path):
-    weights_path = "weights.18-4.06.hdf5"
-    model = WideResNet(64)()
-    model.load_weights(base_path+weights_path)
-    model._make_predict_function()
-    return model
+    def init_model(self):
+        weights_path = "weights.18-4.06.hdf5"
+        model = WideResNet(64)()
+        model.load_weights(os.path.join(self.model_path, weights_path))
+        model._make_predict_function()
+        return model
 
-def preprocess(img):
-    img = img.resize((64, 64))
-    img = np.expand_dims(img, 0)
-    return img
+    def preprocess(self, img):
+        img = img.resize((64, 64))
+        img = np.expand_dims(img, 0)
+        return img
 
-def get_gender(age_gen_preds):
+    def get_gender(self, age_gen_preds):
 
-    if np.max(age_gen_preds[0]) > 0.7:
-        gender = 'Male' if np.argmax(age_gen_preds[0]) == 1 else 'Female'
-    else:
-        gender = ' '
+        if np.max(age_gen_preds[0]) > 0.7:
+            gender = 'Male' if np.argmax(age_gen_preds[0]) == 1 else 'Female'
+        else:
+            gender = ' '
 
-    return gender
+        return gender
 
-def model_predict(data, model):
+    def model_predict(self, data):
+
+        img = self.decode_img(data)
+
+        x = self.preprocess(img)
+
+        outputs = self.model.predict(x)
+
+        gender = self.get_gender(outputs)
+        age = int(np.argmax(outputs[1]))
+
+        out = {"gender":gender, "age":age}
+
+        return json.dumps(out)
+
     
-    img = decode_img(data)
-    
-    x = preprocess(img)
-    
-    outputs = model.predict(x)
-    
-    gender = get_gender(outputs)
-    age = int(np.argmax(outputs[1]))
-    
-    out = {"gender":gender, "age":age}
-    
-    return json.dumps(out)
-    
-
-
 class WideResNet:
     def __init__(self, image_size, depth=16, k=8):
         self._depth = depth
@@ -152,7 +153,6 @@ class WideResNet:
 
         return f
 
-#    def create_model(self):
     def __call__(self):
         logging.debug("Creating model...")
 

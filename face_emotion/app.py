@@ -6,13 +6,13 @@ import utils
 
 app = Flask(__name__)
 
-model = utils.init_model("models/")
+face_emotion = utils.FaceEmotion("models/")
 
 @app.route('/predict/',methods=['GET','POST'])
 def predict():
 
 	data = request.get_data()
-	output = utils.model_predict(data, model)
+	output = face_emotion.model_predict(data)
 
 	return output	
 

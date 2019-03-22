@@ -8,14 +8,14 @@ import utils
 
 app = Flask(__name__)
 
-model = utils.init_model("models/")
+face_features = utils.FaceFeatures("models/")
 
 @app.route('/predict/',methods=['GET','POST'])
 def predict():
 
     data = request.get_data()
+    output = face_features.model_predict(data)
     
-    output = utils.model_predict(data, model)
     return output	
 
 if __name__ == "__main__":
