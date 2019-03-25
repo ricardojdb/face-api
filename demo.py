@@ -6,7 +6,7 @@ import cv2
 import sys
 import os
 
-import utils.utils as utils
+from utils import utils
 
 import warnings
 warnings.filterwarnings("ignore")
