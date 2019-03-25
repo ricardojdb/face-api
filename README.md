@@ -14,19 +14,19 @@ Face API with Docker, Tensorflow and PyTorch
 ### How to use:
 Make sure the models and images are inside their respective folders.
 
-Run all the docker syncronically:
+Build and run the Dockers in parallel:
 ```
 bash runmodels.sh
 ```
 
-Stop docker containers:
+Stop Docker containers:
 ```
 bash stopmodels.sh
 ```
 
 ### Test:
 
-Test that the models are running using:
+Test the APIs by running:
 ```
 python test_api.py
 ```
