@@ -30,3 +30,11 @@ Test the APIs by running:
 ```
 python test_api.py
 ```
+
+## Demo:
+This demo uses the API to make predictions using the webcam. 
+
+To run the demo use:
+```
+python demo.py
+```
