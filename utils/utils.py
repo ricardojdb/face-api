@@ -7,6 +7,7 @@ import sys
 import cv2
 import os
 
+# Set the color for the sentiment bars
 colors = {'anger':(0,0,190), 'disgust':(0,184,113),'fear': (98,24,91), 
           'happiness':(8, 154, 255), 'sadness':(231,217,0), 'surprise':(0, 253, 255), 
           'neutral':(200,200,200), 'contempt':(200,200,200)}
@@ -14,6 +15,9 @@ colors = {'anger':(0,0,190), 'disgust':(0,184,113),'fear': (98,24,91),
 classes = ['neutral', 'happiness', 'surprise', 'sadness', 'anger', 'disgust', 'fear', 'contempt']
 
 def get_wide_box(w, h, xmin, ymin, xmax, ymax):
+    """
+    Expands the boundary face box
+    """
     xmin_wide = max(xmin-(xmax-xmin)//4, 0)
     ymin_wide = max(ymin-(ymax-ymin)//4, 0)
     xmax_wide = min(xmax+(xmax-xmin)//6, w-1)
@@ -26,7 +30,8 @@ def weighted_average(Vdw, dw, beta):
     return beta * Vdw + (1-beta) * dw
 
 def draw_box(image, label, gender, age, scores, classes, colors, box):
-    """ Draws a Bounding Box over a Face.
+    """ 
+    Draws a Bounding Box over a Face.
     Args:
         image (narray): the image containng the face
         label (str): the label that goes on top of the box
@@ -41,7 +46,6 @@ def draw_box(image, label, gender, age, scores, classes, colors, box):
     output = np.copy(image)
 
     fontType = cv2.FONT_HERSHEY_DUPLEX
-    alpha = 0.7
 
     fontScale_box = 0.5
     thickness_box = 1
@@ -93,7 +97,7 @@ def draw_box(image, label, gender, age, scores, classes, colors, box):
 
 
 class WebcamVideoStream:
-    def __init__(self, src=0):#,model='yolo'
+    def __init__(self, src=0):
         # initialize the video camera stream and read the first frame from the stream
         self.stream = cv2.VideoCapture(src)
         # Change depending on the resolution of the camera

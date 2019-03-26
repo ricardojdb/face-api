@@ -8,9 +8,6 @@ import os
 
 from utils import utils
 
-import warnings
-warnings.filterwarnings("ignore")
-
 def encode_img(img):
     _, buffer = cv2.imencode('.jpg', img)
     img_str = base64.b64encode(buffer)
@@ -18,11 +15,14 @@ def encode_img(img):
 
 table_dict = {}
 
+# Start thread to capture and show the stream.
 video_path = 0 
 video_capture = utils.WebcamVideoStream(video_path).start()
  
 while True:
+    # Collect width and height from the stream
     h, w = int(video_capture.h), int(video_capture.w)
+    # Read the current frame
     ret, image = video_capture.read()
     
     if not ret: 
@@ -31,6 +31,7 @@ while True:
     
     img = np.copy(image)
     
+    # Call Face detection API
     try:
         detect_req = requests.get('http://192.168.8.100:7000/predict/', data=encode_img(img))
         detections = detect_req.json()
@@ -61,7 +62,7 @@ while True:
 
             if not roi_color.size: continue
             
-            # Predict age and gender
+            # Call Face Features API
             try:
                 agen_req = requests.get('http://192.168.8.100:7002/predict/', data=encode_img(roi_color_wide))
                 agen_predict = agen_req.json()
@@ -69,7 +70,7 @@ while True:
             except:
                 gender, age = " ", 0
             
-            # Emotion Scores
+            # Call Face Emotion API
             try:
                 emot_req = requests.get('http://192.168.8.100:7001/predict/', data=encode_img(roi_color))            
                 scores = emot_req.json()["emotions"]
@@ -85,8 +86,7 @@ while True:
                 fr_score, label = 0, " "
 
             time_stamp = datetime.now().strftime("%H:%M:%S")
-            
-            # Add label to Dataset with (Name, Main Sentiment, Gender, Last Seen(Time))
+            # Use exponentially weighted average to smooth the changes in sentiment, age and position.
             if label in table_dict:
                 age_ewa = utils.weighted_average(age, table_dict[label][2], beta=0.998)
                 scores_ewa = utils.weighted_average(scores, table_dict[label][3:11], beta=0.8)
@@ -98,6 +98,7 @@ while True:
 
             data_list.append(table_dict[label])
             
+    # Send outputs to the thread so it can be plotted on the stream.
     video_capture.data_list = data_list
         
     if video_capture.stopped:

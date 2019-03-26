@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# If the docker image already exists don't build
 if [[ "$(sudo docker images -q facedetect:latest 2> /dev/null)" != "" ]]
 then
 echo Image facedetect already built
@@ -28,6 +29,7 @@ else
 sudo docker build -t vggface face_recognition/
 fi
 
+# Run the containers in the ports 7000, 7001, 7002, 7003
 sudo docker run --runtime=nvidia --name=facedetect-service --rm \
 -dit -v /home/deepai/Documents/show-room/docker_models/face_detect:/app -p 7000:7000 facedetect
 
