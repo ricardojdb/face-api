@@ -1,5 +1,5 @@
 # Face API
-Face API with Docker, Tensorflow and PyTorch
+Face API with Docker, Tensorflow and PyTorch.
 
 ### Models:
 * Face Detection - TensorFlow ([SSD-Mobilenet](https://github.com/yeephycho/tensorflow-face-detection))
