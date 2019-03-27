@@ -2,8 +2,8 @@
 */.ipynb_checkpoints/*
 */__pycache__/*
 
-face_*/models/*
-!face_*/models/.keep
+*/face_*/models/*
+!*/face_*/models/.keep
 
-*face_*/images/*
-!face_*/images/.keep
+*/face_*/images/*
+!*/face_*/images/.keep
