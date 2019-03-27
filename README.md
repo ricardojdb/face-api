@@ -11,30 +11,19 @@ Face API with Docker, Tensorflow and PyTorch.
 * Docker with Nvidia Support [Nvidia-Docker](https://github.com/NVIDIA/nvidia-docker)  
 * CUDA 9 [Guide](https://docs.nvidia.com/cuda/cuda-installation-guide-microsoft-windows/index.html)
 
-### How to use:
-Make sure the models and images are inside their respective folders.
-
-Build and run the Dockers in parallel:
-```
-bash runmodels.sh
-```
-
-Stop Docker containers:
-```
-bash stopmodels.sh
-```
-
 ### Test:
-
-Test the APIs by running:
+Change the `host` variable inside the `test_api.py` script with the IP in which the dockers are running and then run the following:
 ```
 python test_api.py
 ```
 
-### Demo:
+### Run the demo:
 This demo calls the API to make predictions using the webcam. 
 
-To run the demo use:
+Make sure the docker containers are running and change the `host` variable with the desired IP. 
+
+Run the demo using:
 ```
 python demo.py
 ```
+
