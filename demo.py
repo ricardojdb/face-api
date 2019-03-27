@@ -18,7 +18,9 @@ table_dict = {}
 # Start thread to capture and show the stream.
 video_path = 0 
 video_capture = utils.WebcamVideoStream(video_path).start()
- 
+
+host = "192.168.1.7"
+
 while True:
     # Collect width and height from the stream
     h, w = int(video_capture.h), int(video_capture.w)
@@ -33,7 +35,7 @@ while True:
     
     # Call Face detection API
     try:
-        detect_req = requests.get('http://192.168.8.100:7000/predict/', data=encode_img(img))
+        detect_req = requests.get(f'http://{host}:7000/predict/', data=encode_img(img))
         detections = detect_req.json()
     except:
         detections = []
@@ -64,7 +66,7 @@ while True:
             
             # Call Face Features API
             try:
-                agen_req = requests.get('http://192.168.8.100:7002/predict/', data=encode_img(roi_color_wide))
+                agen_req = requests.get(f'http://{host}:7002/predict/', data=encode_img(roi_color_wide))
                 agen_predict = agen_req.json()
                 gender, age = agen_predict["gender"], agen_predict["age"]
             except:
@@ -72,24 +74,24 @@ while True:
             
             # Call Face Emotion API
             try:
-                emot_req = requests.get('http://192.168.8.100:7001/predict/', data=encode_img(roi_color))            
+                emot_req = requests.get(f'http://{host}:7001/predict/', data=encode_img(roi_color))            
                 scores = emot_req.json()["emotions"]
             except:
                 scores = [1,0,0,0,0,0,0,0]            
             
             # Facial Recognition
             try:
-                recog_req = requests.get('http://192.168.8.100:7003/predict/', data=encode_img(roi_color_wide))
+                recog_req = requests.get(f'http://{host}:7003/predict/', data=encode_img(roi_color_wide))
                 recog = recog_req.json()
                 fr_score, label = recog["dist"], recog["label"]
             except:
                 fr_score, label = 0, " "
-
+                    
             time_stamp = datetime.now().strftime("%H:%M:%S")
             # Use exponentially weighted average to smooth the changes in sentiment, age and position.
             if label in table_dict:
                 age_ewa = utils.weighted_average(age, table_dict[label][2], beta=0.998)
-                scores_ewa = utils.weighted_average(scores, table_dict[label][3:11], beta=0.8)
+                scores_ewa = utils.weighted_average(scores, table_dict[label][3:11], beta=0.5)
                 box_ewa = utils.weighted_average([xmin, ymin, xmax, ymax], 
                                                  table_dict[label][-2], beta=0.998)
                 table_dict[label] = [label, gender, age_ewa, *scores_ewa, box_ewa, time_stamp]

@@ -7,12 +7,17 @@ import sys
 import cv2
 import os
 
+global colors, classes
 # Set the color for the sentiment bars
 colors = {'anger':(0,0,190), 'disgust':(0,184,113),'fear': (98,24,91), 
           'happiness':(8, 154, 255), 'sadness':(231,217,0), 'surprise':(0, 253, 255), 
           'neutral':(200,200,200), 'contempt':(200,200,200)}
 
 classes = ['neutral', 'happiness', 'surprise', 'sadness', 'anger', 'disgust', 'fear', 'contempt']
+
+global emojis_names, emojis
+emojis_names = [emoji[:-4] for emoji in os.listdir('utils/emojis/')]
+emojis = [cv2.imread('utils/emojis/'+emoji+'.png') for emoji in emojis_names]
 
 def get_wide_box(w, h, xmin, ymin, xmax, ymax):
     """
@@ -95,14 +100,76 @@ def draw_box(image, label, gender, age, scores, classes, colors, box):
     
     return img
 
+def draw_box_emojis(image, label, gender, age, scores, classes, colors, box):
+    
+    main_sentiment = classes[np.argmax(scores)]
+
+    #image_ori = np.copy(image)
+    color_box = (68,68,68)
+    xmin, ymin, xmax, ymax = np.array(box, dtype=int)
+    xmid = int(xmin + (xmax-xmin)/2.0)
+    ymid = int(ymin + (ymax-ymin)/2.0)
+
+    # Face rectangle
+    cv2.rectangle(image,(xmin,ymin),(xmax,ymax),colors[main_sentiment],2)
+    cv2.rectangle(image,(xmin,ymin),(xmax,ymax),colors[main_sentiment],4)
+
+    ### Draw infobox
+    # name size
+    text_name_scale = 0.7
+    name_size = cv2.getTextSize(label, cv2.FONT_HERSHEY_DUPLEX, text_name_scale, 1)
+    
+    # sex age size
+    text_agen_scale = 0.6
+    agen = str(age)+', ' + str(gender)
+    agen_size = cv2.getTextSize(agen, cv2.FONT_HERSHEY_DUPLEX, text_agen_scale, 1)
+    
+    # set infobox size a draw it
+    lines_w = 10
+    infobox_w = name_size[0][0] + 20
+    if infobox_w < 165:
+        infobox_w = 165
+    infobox_h = name_size[0][1] + agen_size[0][1] + 10
+    infobox_xmin = xmid-(infobox_w/2)
+    infobox_ymin = ymin-lines_w-infobox_h
+    infobox_xmax = infobox_xmin + infobox_w
+    infobox_ymax = infobox_ymin+infobox_h
+    cv2.rectangle(image, (int(infobox_xmin), int(infobox_ymin)), (int(infobox_xmax), int(infobox_ymax)),color_box, -1) #infobox
+    cv2.rectangle(image, (int(infobox_xmin), int(infobox_ymin)), (int(infobox_xmax), int(infobox_ymax)),color_box, lines_w)
+    
+    ### Write name sex and age on infobox 
+    # write name
+    ID_x = int(infobox_xmin+8)
+    ID_y = int(infobox_ymin+2+name_size[0][1])
+    cv2.putText(image, label, (ID_x,ID_y), cv2.FONT_HERSHEY_DUPLEX, text_name_scale, (255, 255, 255), 1) 
+    # write sex and age
+    se_x = int(infobox_xmin+8)
+    se_y = int(ID_y+5+agen_size[0][1])
+    cv2.putText(image, agen, (se_x,se_y), cv2.FONT_HERSHEY_DUPLEX, text_agen_scale, (255, 255, 255), 1) 
+
+    ### show main emoji
+    emoji = emojis[emojis_names.index(main_sentiment)]
+    emoji = cv2.resize(emoji,(infobox_h , infobox_h))
+    emo_w,emo_h = emoji.shape[:-1]
+
+    emoji_gray = cv2.cvtColor(emoji,cv2.COLOR_BGR2GRAY)
+    mask = (emoji_gray>250)
+
+    emoji_ymin = int(infobox_ymin+2)
+    emoji_xmin = int(infobox_xmax-emo_w-5)
+    true_h,true_w,_ = image[emoji_ymin:emoji_ymin+emo_h, emoji_xmin:emoji_xmin+emo_w].shape
+    image[emoji_ymin:emoji_ymin+emo_h, emoji_xmin:emoji_xmin+emo_w] *= np.expand_dims(mask[:true_h,:true_w],-1)
+    image[emoji_ymin:emoji_ymin+emo_h, emoji_xmin:emoji_xmin+emo_w] += emoji[:true_h,:true_w]
+
+    return image
 
 class WebcamVideoStream:
     def __init__(self, src=0):
         # initialize the video camera stream and read the first frame from the stream
         self.stream = cv2.VideoCapture(src)
         # Change depending on the resolution of the camera
-        # self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920) 
-        # self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920) 
+        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         self.h = self.stream.get(4)
         self.w =self.stream.get(3)
         (self.grabbed, self.frame) = self.stream.read()
@@ -146,7 +213,7 @@ class WebcamVideoStream:
                     for data in self.data_list:
                         scores_dic = {c:s*100 for c,s in zip(classes, data[3:11])}
                         
-                        img = draw_box(img, data[0], data[1], data[2], 
+                        img = draw_box_emojis(img, data[0], data[1], int(data[2]), 
                                         data[3:11], classes, colors, data[-2])
 
                 cv2.imshow('final_image',img)
