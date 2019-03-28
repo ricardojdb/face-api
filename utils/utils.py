@@ -8,6 +8,7 @@ import cv2
 import os
 
 global colors, classes
+
 # Set the color for the sentiment bars
 colors = {'anger':(0,0,190), 'disgust':(0,184,113),'fear': (98,24,91), 
           'happiness':(8, 154, 255), 'sadness':(231,217,0), 'surprise':(0, 253, 255), 
