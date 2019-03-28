@@ -3,9 +3,9 @@ Face API with Docker, Tensorflow and PyTorch.
 
 ### Models:
 * Face Detection - TensorFlow ([SSD-Mobilenet](https://github.com/yeephycho/tensorflow-face-detection))
-* Facial Emotion Recognition - PyTorch ([Resnet50](http://www.robots.ox.ac.uk/~albanie/mcn-models.html#cross-modal-emotion))
+* Facial Emotion Recognition - PyTorch ([Resnet50](http://www.robots.ox.ac.uk/~albanie/pytorch-models.html))
 * Age and Gender Estimation - Keras ([WideResnet](https://github.com/Tony607/Keras_age_gender))
-* Facial Recognition - PyTorch ([VGGFace2](http://www.robots.ox.ac.uk/~vgg/data/vgg_face2/))
+* Facial Recognition - PyTorch ([VGGFace2](http://www.robots.ox.ac.uk/~albanie/pytorch-models.html))
 
 ### Requirements:
 * Docker with Nvidia Support [Nvidia-Docker](https://github.com/NVIDIA/nvidia-docker)  
