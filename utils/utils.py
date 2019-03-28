@@ -39,10 +39,14 @@ def draw_box(image, label, gender, age, scores, classes, colors, box):
     """ 
     Draws a Bounding Box over a Face.
     Args:
-        image (narray): the image containng the face
-        label (str): the label that goes on top of the box
-        scores (narray): Facial expression prediciton scores 
-        [xmin,ymin,xmax,ymax] (int): Bounding box coordinates
+        image (narray): the image containng the face.
+        label (str): the label that goes on top of the box.
+        gender (str): Gender from the gender model.
+        age (int): Age from the age model.
+        scores (narray): Facial expression prediciton scores.
+        classes (narray): List of predicted emotions.
+        colors (dict): each amotion mapped to a color.
+        box (narray): Bounding box coordinates [xmin,ymin,xmax,ymax].
     Return:
         result_image (narray): edited image
     """
@@ -102,7 +106,20 @@ def draw_box(image, label, gender, age, scores, classes, colors, box):
     return img
 
 def draw_box_emojis(image, label, gender, age, scores, classes, colors, box):
-    
+    """ 
+    Draws a Bounding Box over a Face.
+    Args:
+        image (narray): the image containng the face.
+        label (str): the label that goes on top of the box.
+        gender (str): Gender from the gender model.
+        age (int): Age from the age model.
+        scores (narray): Facial expression prediciton scores.
+        classes (narray): List of predicted emotions.
+        colors (dict): each amotion mapped to a color.
+        box (narray): Bounding box coordinates [xmin,ymin,xmax,ymax].
+    Return:
+        result_image (narray): edited image
+    """
     main_sentiment = classes[np.argmax(scores)]
 
     #image_ori = np.copy(image)
