@@ -158,7 +158,7 @@ def draw_box_emojis(image, label, gender, age, scores, classes, colors, box):
 
     emoji_ymin = int(infobox_ymin+2)
     emoji_xmin = int(infobox_xmax-emo_w-5)
-    true_h,true_w,_ = image[emoji_ymin:emoji_ymin+emo_h, emoji_xmin:emoji_xmin+emo_w].shape
+    true_h,true_w, _ = image[emoji_ymin:emoji_ymin+emo_h, emoji_xmin:emoji_xmin+emo_w].shape
     image[emoji_ymin:emoji_ymin+emo_h, emoji_xmin:emoji_xmin+emo_w] *= np.expand_dims(mask[:true_h,:true_w],-1)
     image[emoji_ymin:emoji_ymin+emo_h, emoji_xmin:emoji_xmin+emo_w] += emoji[:true_h,:true_w]
 
