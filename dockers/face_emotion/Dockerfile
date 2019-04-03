@@ -1,20 +1,20 @@
 # Use pytorch image with Cuda for GPU support
-# docker build -t facemotion . 
 FROM pytorch/pytorch:0.4_cuda9_cudnn7
 
-# LABEL "docker run --runtime=nvidia --name=facemotion-service --rm -v /home/deepai/Documents/show-room/docker_models/face_emotion:/app -p 7000:7000 facemotion"
+LABEL GPU.run="docker run --runtime=nvidia  --name=facemotion-service --rm -dit -v <PATH>:/app -p 7001:7000 facemotion" \
+      CPU.run="docker run --name=facemotion-service --rm -dit -v <PATH>:/app -p 7001:7000 facemotion"
 
-# Create app folder
+# Create app/ directory
 RUN mkdir /app
 
 # Set the working directory to /app
 WORKDIR /app
 
-# Copy the requiremets.txt file into the container at /app
+# Copy the requirements.txt file into the container at /app
 COPY requirements.txt /app
 
-# Local directory as a volume
-VOLUME /home/deepai/Documents/show-room/docker_models/face_emotion:/app
+# Set local directory as a volume
+VOLUME /app
 
 # Install any needed packages specified in requirements.txt
 RUN pip install -r requirements.txt

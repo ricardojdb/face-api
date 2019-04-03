@@ -1,26 +1,25 @@
-# Use opencv image to have all the dependencies ready
-# docker build -t facefeatures . 
+# Use tensorflow-gpu-py3 image to have all the dependencies ready
 FROM tensorflow/tensorflow:1.11.0-gpu-py3
 
-# Run script
-# LABEL "docker run --runtime=nvidia --name=facefeatures-service --rm -v /home/deepai/Documents/show-room/docker_models/face_features:/app -p 7000:7000 facefeatures"
+LABEL GPU.run="docker run --runtime=nvidia  --name=facefeatures-service --rm -dit -v <PATH>:/app -p 7002:7000 facefeatures" \
+      CPU.run="docker run --name=facefeatures-service --rm -dit -v <PATH>:/app -p 7002:7000 facefeatures"
 
 # Create app/ directory
 RUN mkdir /app
 
-# Setting working directory
+# Set the working directory to /app
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
+# Copy the requirements.txt file into the container at /app
 COPY requirements.txt /app
 
-# Local directory as a volume
-VOLUME /home/deepai/Documents/show-room/docker_models/face_features:/app
+# Set local directory as a volume
+VOLUME /app
 
 # Install any needed packages specified in requirements.txt
 RUN pip install -r requirements.txt
 
-# Make port 80 available to the world outside this container
+# Make port available to the world outside this container
 EXPOSE 7000
 
 # Define environment variable
