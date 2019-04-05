@@ -1,0 +1,41 @@
+version: '2.3'
+services:
+  facedetect:
+    container_name: facedetect-service
+    # image: facedetect:latest
+    build: ./face_detect
+    ports:
+     - "7000:7000"
+    volumes:
+     - ./face_detect:/app
+    runtime: nvidia
+    
+  facemotion:
+    container_name: facemotion-service
+    # image: facemotion:latest
+    build: ./face_emotion
+    ports:
+     - "7001:7000"
+    volumes:
+     - ./face_emotion:/app
+    runtime: nvidia
+    
+  facefeatures:
+    container_name: facefeatures-service
+    # image: facefeatures:latest
+    build: ./face_features
+    ports:
+     - "7002:7000"
+    volumes:
+     - ./face_features:/app
+    runtime: nvidia
+    
+  vggface:
+    container_name: vggface-service
+    # image: vggface:latest
+    build: ./face_recognition
+    ports:
+     - "7003:7000"
+    volumes:
+     - ./face_recognition:/app
+    runtime: nvidia
