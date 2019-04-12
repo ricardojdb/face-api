@@ -13,7 +13,8 @@ img_str = base64.b64encode(buffer.getvalue())
 host = 192.168.8.100
 for i in range(4):
     try:
-        r = requests.get("http://f{host}:7{0:03}/predict/".format(i), data=img_str)
+        r = requests.get("http://f{host}:7{0:03}/predict/".format(i), 
+            params={"data":img_str})
     except Exception as e:
         print("Error with API in port 7{0:03}".format(i))
         continue
