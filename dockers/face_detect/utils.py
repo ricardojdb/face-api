@@ -17,20 +17,51 @@ class FaceDetector(object):
         self.model = self.init_model()
         
     def decode_img(self, data):
+        """
+        Decodes the encoded data comming from a request.
+
+        Parameters
+        ----------
+        encoded_data : bytes
+            Base64 data comming from request.
+
+        Returns
+        -------
+        decoded_data: optional
+            Data decoded into a usable format.
+        """
         return Image.open(BytesIO(base64.b64decode(data)))
 
     def init_model(self):
+        """
+        Initializes the machine learning model.
+
+        Returns
+        -------
+        model: object
+            Pre-trained model used
+            to make predictions.
+        """
         model_name = "frozen_inference_graph_face.pb"
         return TensoflowFaceDector(os.path.join(self.model_path, model_name))
 
-    def get_predict(self, data):
+    def model_predict(self, data):
         """
-        Runs the model and creates a json output
-        Parameters:
-        - Data: string data from the request.
-        - 
-        """
+        Decodes and preprocess the data, uses the 
+        pretrained model to make predictions and 
+        returns a well formatted json output.
 
+        Parameters
+        ----------
+        encoded_data: bytes
+            Base64 data comming from request.
+
+        Returns
+        -------
+        outputs: json
+            A json response that contains the output
+            from the pre-trained model.
+        """
         img = self.decode_img(data)
 
         detections = self.model.run(img)    
