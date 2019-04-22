@@ -14,7 +14,7 @@ host = "localhost"
 for i in range(4):
     try:
         r = requests.get("http://"+host+":7{0:03}/predict/".format(i), 
-            params={"data":img_str})
+            params={"data":img_str}, timeout=5)
     except Exception as e:
         print("Error with API in port 7{0:03}".format(i))
         continue

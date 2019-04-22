@@ -36,7 +36,7 @@ while True:
     # Call Face detection API
     try:
         detect_req = requests.get(f'http://{host}:7000/predict/', 
-            params={"data":encode_img(img)})
+            params={"data":encode_img(img)}, timeout=5)
         detections = detect_req.json()
     except:
         detections = []
@@ -73,7 +73,7 @@ while True:
             # Call Face Features API
             try:
                 agen_req = requests.get(f'http://{host}:7002/predict/', 
-                    params={"data":encode_img(roi_color_wide)})
+                    params={"data":encode_img(roi_color_wide)}, timeout=5)
                 agen_predict = agen_req.json()
                 gender, age = agen_predict["gender"], agen_predict["age"]
             except:
@@ -82,7 +82,7 @@ while True:
             # Call Face Emotion API
             try:
                 emot_req = requests.get(f'http://{host}:7001/predict/', 
-                    params={"data":encode_img(roi_color)})            
+                    params={"data":encode_img(roi_color)}, timeout=5)            
                 scores = emot_req.json()["emotions"]
             except:
                 scores = [1,0,0,0,0,0,0,0]            
@@ -90,7 +90,7 @@ while True:
             # Facial Recognition
             try:
                 recog_req = requests.get(f'http://{host}:7003/predict/', 
-                    params={"data":encode_img(roi_color_wide)})
+                    params={"data":encode_img(roi_color_wide)}, timeout=5)
                 recog = recog_req.json()
                 fr_score, label = recog["dist"], recog["label"]
             except:
