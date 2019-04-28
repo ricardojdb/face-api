@@ -1,8 +1,12 @@
 .ipynb_checkpoints/*
 */.ipynb_checkpoints/*
 */*/.ipynb_checkpoints/*
+
 */__pycache__/*
 */*/__pycache__/*
+
+.vscode/
+*/.vscode/
 
 */face_*/models/*
 !*/face_*/models/.keep
