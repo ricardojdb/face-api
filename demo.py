@@ -6,7 +6,8 @@ import cv2
 import sys
 import os
 
-from utils import utils
+from utils import sql_utils
+import utils
 
 def encode_img(img):
     _, buffer = cv2.imencode('.jpg', img)
@@ -14,6 +15,10 @@ def encode_img(img):
     return img_str
 
 table_dict = {}
+
+# MySQL tables
+sql_utils.create_mysql_table()
+sql_utils.clean_mysql_table('sentiment')
 
 # Start thread to capture and show the stream.
 video_path = 0 
@@ -117,7 +122,10 @@ while True:
                 [xmin, ymin, xmax, ymax], time_stamp]
 
             data_list.append(table_dict[label])
-            
+    
+    # insert data to mysql table
+    sql_utils.insert_mysql_table(data_list)
+
     # Send outputs to the thread so it can be plotted on the stream.
     video_capture.data_list = data_list
         
