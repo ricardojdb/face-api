@@ -21,7 +21,7 @@ sql_utils.create_mysql_table()
 sql_utils.clean_mysql_table('sentiment')
 
 # Start thread to capture and show the stream.
-video_path = 0 
+video_path = 0
 video_capture = utils.WebcamVideoStream(video_path).start()
 
 host = "localhost"
