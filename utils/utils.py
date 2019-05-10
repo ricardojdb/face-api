@@ -186,8 +186,8 @@ class WebcamVideoStream:
         # initialize the video camera stream and read the first frame from the stream
         self.stream = cv2.VideoCapture(src)
         # Change depending on the resolution of the camera
-        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1920) 
-        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 1280) 
+        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         self.h = self.stream.get(4)
         self.w =self.stream.get(3)
         (self.grabbed, self.frame) = self.stream.read()

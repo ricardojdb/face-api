@@ -75,7 +75,7 @@ class FaceRecognition(object):
                 name = k
                 min_dist = dist
 
-        if min_dist > 1.1:
+        if min_dist > 0.9:
             name = 'ID-' + str(len(self.database.keys())+1)
             self.database[name] = preds
 
