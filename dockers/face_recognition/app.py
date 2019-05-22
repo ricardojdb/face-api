@@ -9,8 +9,8 @@ app = Flask(__name__)
 # Loads the given model and the image dataset
 face_recognition = utils.FaceRecognition("models/", "images/")
 
-# The model runs in the /predict route
-@app.route('/predict/',methods=['GET','POST'])
+
+@app.route('/predict/', methods=['GET', 'POST'])
 def predict():
     # Obtain the data from the request
     data = request.args.get('data')

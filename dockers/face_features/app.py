@@ -5,16 +5,16 @@ import utils
 # Initialize the flask app
 app = Flask(__name__)
 
-# Loads the given model 
+# Loads the given model
 face_features = utils.FaceFeatures("models/")
 
-# The model runs in the /predict route
-@app.route('/predict/',methods=['GET','POST'])
+
+@app.route('/predict/', methods=['GET', 'POST'])
 def predict():
     # Obtain the data from the request
     data = request.args.get('data')
     # Runs the model and returns the outputs in a json format
-    output = face_features.model_predict(data)   
+    output = face_features.model_predict(data)
     return output
 
 if __name__ == "__main__":

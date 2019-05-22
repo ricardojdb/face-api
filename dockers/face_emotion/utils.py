@@ -6,15 +6,16 @@ import base64
 import torch
 import json
 import six
-import os 
+import os
+
 
 class FaceEmotion(object):
     """
     Initializes and handles de face detection model in PyTorch
     """
     def __init__(self, model_path):
-        
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(
+            "cuda" if torch.cuda.is_available() else "cpu")
         self.model_path = model_path
         self.model = self.init_model()
 
@@ -37,12 +38,14 @@ class FaceEmotion(object):
         both Python2 and Python3
         Args:
             model_name: The name of the model to be loaded
-            model_def_path: The filepath of the module containing the definition
+            model_def_path: The filepath of the module
+                            containing the definition
         Return:
             The loaded python module."""
         if six.PY3:
             import importlib.util
-            spec = importlib.util.spec_from_file_location(model_name, model_def_path)
+            spec = importlib.util.spec_from_file_location(
+                model_name, model_def_path)
             mod = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(mod)
         else:
@@ -54,18 +57,18 @@ class FaceEmotion(object):
         return mod
 
     def preprocess(self, image_array):
-        image = image_array.resize((224,224)) 
+        image = image_array.resize((224, 224))
         image = np.asarray(image) - np.array([131.0912, 103.8827, 91.4953])
-        image = np.transpose(image, (2,0,1))
+        image = np.transpose(image, (2, 0, 1))
         image = np.expand_dims(image, 0)
         image = torch.tensor(image, dtype=torch.float32).to(self.device)
         return image
-    
+
     def softmax(self, x):
         """Compute softmax values for each sets of scores in x."""
         e_x = np.exp(x - np.max(x))
         return e_x / e_x.sum()
-    
+
     def model_predict(self, data):
         image = self.decode_img(data)
 
@@ -75,6 +78,6 @@ class FaceEmotion(object):
             predictions = predictions.cpu()
 
         predictions = predictions.detach().numpy()
-        out = {"emotions":self.softmax(predictions).reshape(-1,).tolist()}
+        out = {"emotions": self.softmax(predictions).reshape(-1,).tolist()}
 
         return json.dumps(out)
