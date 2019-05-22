@@ -27,10 +27,10 @@ docker-compose -f dockers/docker-compose.yml up
 
 The user can access the API using the following URL:
 ```
-http://localhost:7000/predict/
+http://<IP>:<PORT>/predict/
 ```
 
-Each model is hosted in a different port e.g. `7001`, `7002`, `7003`.
+It can be any IP (public or private) connected to the server, and each model is hosted in a different port e.g. `7001`, `7002`, `7003`.
 
 ### Test:
 Change the `host` variable inside the `test_api.py` script with the IP in which the dockers are running and then run the following:
