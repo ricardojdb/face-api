@@ -11,7 +11,7 @@ img.save(buffer, "JPEG")
 img_str = base64.b64encode(buffer.getvalue())
 
 host = "localhost"
-for i in range(4):
+for i in range(3,7):
     try:
         r = requests.get("http://"+host+":7{0:03}/predict/".format(i), 
             params={"data":img_str}, timeout=5)
