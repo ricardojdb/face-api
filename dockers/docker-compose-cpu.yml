@@ -1,0 +1,41 @@
+version: '2.3'
+services:
+  facedetect:
+    container_name: facedetect-service
+    build: 
+      context: ./face_detect
+      dockerfile: Dockerfile-cpu
+    ports:
+     - "7003:7000"
+    volumes:
+     - ./face_detect:/app
+    
+  facemotion:
+    container_name: facemotion-service
+    build: 
+      context: ./face_emotion 
+      dockerfile: Dockerfile-cpu
+    ports:
+     - "7004:7000"
+    volumes:
+     - ./face_emotion:/app
+    
+  facefeatures:
+    container_name: facefeatures-service
+    build:  
+      context: ./face_features
+      dockerfile: Dockerfile-cpu
+    ports:
+     - "7005:7000"
+    volumes:
+     - ./face_features:/app
+    
+  facerecognition:
+    container_name: facerecognition-service
+    build: 
+      context: ./face_recognition
+      dockerfile: Dockerfile-cpu
+    ports:
+     - "7006:7000"
+    volumes:
+     - ./face_recognition:/app

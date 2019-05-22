@@ -2,8 +2,9 @@ version: '2.3'
 services:
   facedetect:
     container_name: facedetect-service
-    # image: facedetect:latest
-    build: ./face_detect
+    build: 
+      context: ./face_detect
+      dockerfile: Dockerfile-gpu
     ports:
      - "7003:7000"
     volumes:
@@ -12,8 +13,9 @@ services:
     
   facemotion:
     container_name: facemotion-service
-    # image: facemotion:latest
-    build: ./face_emotion
+    build: 
+      context: ./face_emotion 
+      dockerfile: Dockerfile-gpu
     ports:
      - "7004:7000"
     volumes:
@@ -22,8 +24,9 @@ services:
     
   facefeatures:
     container_name: facefeatures-service
-    # image: facefeatures:latest
-    build: ./face_features
+    build: 
+      context: ./face_features
+      dockerfile: Dockerfile-gpu
     ports:
      - "7005:7000"
     volumes:
@@ -32,8 +35,9 @@ services:
     
   facerecognition:
     container_name: facerecognition-service
-    # image: vggface:latest
-    build: ./face_recognition
+    build: 
+      context: ./face_recognition
+      dockerfile: Dockerfile-gpu
     ports:
      - "7006:7000"
     volumes:

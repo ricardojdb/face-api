@@ -1,7 +1,7 @@
 # Use tensorflow-gpu-py3 image to have all the dependencies ready
 FROM tensorflow/tensorflow:1.11.0-gpu-py3
 
-LABEL run="docker run --runtime=nvidia  --name=facedetect-service --rm -dit -v <PATH>:/app -p 7000:7000 facedetect" 
+LABEL run="docker run --runtime=nvidia  --name=facefeatures-service --rm -dit -v <PATH>:/app -p 7002:7000 facefeatures" 
 
 # Create app/ directory
 RUN mkdir /app
