@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import numpy as np
 import requests
+import traceback
 import base64
 import cv2
 import sys
@@ -41,12 +42,13 @@ while True:
 
     # Call Face detection API
     try:
-        detect_req = requests.get(
-            url=f'http://{host}:7000/predict/',
-            params={"data": encode_img(img)},
+        detect_req = requests.post(
+            url=f'http://{host}:7003/predict',
+            data=encode_img(img),
             timeout=5)
         detections = detect_req.json()
     except:
+        traceback.print_exc(file=sys.stdout)
         detections = []
 
     data_list = []
@@ -59,7 +61,9 @@ while True:
         # greater than the minimum confidence
         if confidence > 0.3:
             # compute the (x, y)-coordinates of the bounding box for the object
-            box = face["box"] * np.array([w, h, w, h])
+            box = [face["xmin"], face["ymin"],
+                   face["xmax"], face["ymax"]]
+            box = box * np.array([w, h, w, h])
             (xmin, ymin, xmax, ymax) = box.astype("int")
 
             # Fix negatives and big numbers
@@ -84,34 +88,37 @@ while True:
             # Call Face Features API
             try:
                 agen_req = requests.get(
-                    url=f'http://{host}:7002/predict/',
-                    params={"data": encode_img(roi_color_wide)},
+                    url=f'http://{host}:7005/predict',
+                    data=encode_img(roi_color_wide),
                     timeout=5)
 
                 agen_predict = agen_req.json()
                 gender, age = agen_predict["gender"], agen_predict["age"]
             except:
+                traceback.print_exc(file=sys.stdout)
                 gender, age = " ", 0
 
             # Call Face Emotion API
             try:
                 emot_req = requests.get(
-                    url=f'http://{host}:7001/predict/',
-                    params={"data": encode_img(roi_color)},
+                    url=f'http://{host}:7004/predict',
+                    data=encode_img(roi_color),
                     timeout=5)
                 scores = emot_req.json()["emotions"]
             except:
+                traceback.print_exc(file=sys.stdout)
                 scores = [1] + [0]*6
 
             # Facial Recognition
             try:
                 recog_req = requests.get(
-                    url=f'http://{host}:7003/predict/',
-                    params={"data": encode_img(roi_color_wide)},
+                    url=f'http://{host}:7006/predict',
+                    data=encode_img(roi_color_wide),
                     timeout=5)
                 recog = recog_req.json()
                 fr_score, label = recog["dist"], recog["label"]
             except:
+                traceback.print_exc(file=sys.stdout)
                 fr_score, label = 0, " "
 
             time_stamp = datetime.now().strftime("%H:%M:%S")

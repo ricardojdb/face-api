@@ -71,10 +71,10 @@ class FaceDetector(object):
                 (ymin, xmin, ymax, xmax) = box
 
                 face_json = {'confidence': float(confidence),
-                             'box': [float(xmin),
-                                     float(ymin),
-                                     float(xmax),
-                                     float(ymax)]}
+                             'xmin': float(xmin),
+                             'ymin': float(ymin),
+                             'xmax': float(xmax),
+                             'ymax': float(ymax)}
 
                 face_list.append(face_json)
 

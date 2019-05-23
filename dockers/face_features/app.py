@@ -1,18 +1,20 @@
 from flask import Flask, request
+from flask_cors import CORS
 import numpy as np
 import utils
 
 # Initialize the flask app
 app = Flask(__name__)
+cors = CORS(app, resources={r"/predict": {"origins": "*"}})
 
 # Loads the given model
 face_features = utils.FaceFeatures("models/")
 
 
-@app.route('/predict/', methods=['GET', 'POST'])
+@app.route('/predict', methods=['POST'])
 def predict():
     # Obtain the data from the request
-    data = request.args.get('data')
+    data = request.get_data()
     # Runs the model and returns the outputs in a json format
     output = face_features.model_predict(data)
     return output

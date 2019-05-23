@@ -124,6 +124,12 @@ class FaceRecognition(object):
 
         return name, min_dist
 
+    def update_database(self, idx, name):
+        """Replaces the idx from the dictionary with a name"""
+        label = 'ID-' + str(idx)
+        if label in self.database:
+            self.database[name] = self.database.pop(label)
+
     def model_predict(self, encoded_data):
         """Decodes and preprocess the data, uses the
         pretrained model to make predictions and
