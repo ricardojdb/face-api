@@ -17,53 +17,42 @@ class FaceDetector(object):
         self.model_path = model_path
         self.model = self.init_model()
 
-    def decode_img(self, data):
-        """
-        Decodes the encoded data comming from a request.
+    def decode_img(self, encoded_data):
+        """Decodes the encoded data comming from a request.
 
-        Parameters
-        ----------
-        encoded_data : bytes
-            Base64 data comming from request.
+        Args:
+            encoded_data (base64): data comming from the HTTP request.
 
-        Returns
-        -------
-        decoded_data: optional
-            Data decoded into a usable format.
+        Returns:
+            array: Data decoded into a usable format.
+
         """
-        return Image.open(BytesIO(base64.b64decode(data)))
+        return Image.open(BytesIO(base64.b64decode(encoded_data)))
 
     def init_model(self):
-        """
-        Initializes the machine learning model.
+        """Initializes the machine learning model.
 
-        Returns
-        -------
-        model: object
-            Pre-trained model used
-            to make predictions.
+        Returns:
+            model (object): Loaded pre-trained model used
+                to make predictions.
+
         """
         model_name = "frozen_inference_graph_face.pb"
         return TensoflowFaceDector(os.path.join(self.model_path, model_name))
 
-    def model_predict(self, data):
-        """
-        Decodes and preprocess the data, uses the
+    def model_predict(self, encoded_data):
+        """Decodes and preprocess the data, uses the
         pretrained model to make predictions and
         returns a well formatted json output.
 
-        Parameters
-        ----------
-        encoded_data: bytes
-            Base64 data comming from request.
+        Args
+            encoded_data (base64): data comming from the HTTP request.
 
-        Returns
-        -------
-        outputs: json
-            A json response that contains the output
-            from the pre-trained model.
+        Returns:
+            json: A response that contains the output from
+                the pre-trained model.
         """
-        img = self.decode_img(data)
+        img = self.decode_img(encoded_data)
 
         detections = self.model.run(img)
 

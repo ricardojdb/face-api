@@ -21,14 +21,33 @@ K.set_session(tf.Session(config=config))
 
 
 class FaceFeatures(object):
+    """Handles data preprocess and forward pass
+    of the Face Features model
+    """
     def __init__(self, model_path):
         self.model_path = model_path
         self.model = self.init_model()
 
-    def decode_img(self, data):
-        return Image.open(BytesIO(base64.b64decode(data)))
+    def decode_img(self, encoded_data):
+        """Decodes the encoded data comming from a request.
+
+        Args:
+            encoded_data (base64): data comming from the HTTP request.
+
+        Returns:
+            array: Data decoded into a usable format.
+
+        """
+        return Image.open(BytesIO(base64.b64decode(encoded_data)))
 
     def init_model(self):
+        """Initializes the machine learning model.
+
+        Returns:
+            model (object): Loaded pre-trained model used
+                to make predictions.
+
+        """
         weights_path = "weights.18-4.06.hdf5"
         model = WideResNet(64)()
         model.load_weights(os.path.join(self.model_path, weights_path))
@@ -36,12 +55,22 @@ class FaceFeatures(object):
         return model
 
     def preprocess(self, img):
+        """Prerocess the data into the right format
+        to be feed in to the given model.
+
+        Args:
+            img (array): Raw decoded data to be processed.
+
+        Returns:
+            array: The data ready to use in the given model.
+
+        """
         img = img.resize((64, 64))
         img = np.expand_dims(img, 0)
         return img
 
     def get_gender(self, age_gen_preds):
-
+        """Helper function to convert the prediction into a label"""
         if np.max(age_gen_preds[0]) > 0.7:
             gender = 'Male' if np.argmax(age_gen_preds[0]) == 1 else 'Female'
         else:
@@ -50,13 +79,20 @@ class FaceFeatures(object):
         return gender
 
     def model_predict(self, data):
+        """Decodes and preprocess the data, uses the
+        pretrained model to make predictions and
+        returns a well formatted json output.
 
+        Args
+            encoded_data (base64): data comming from the HTTP request.
+
+        Returns:
+            json: A response that contains the output from
+                the pre-trained model.
+        """
         img = self.decode_img(data)
-
         x = self.preprocess(img)
-
         outputs = self.model.predict(x)
-
         gender = self.get_gender(outputs)
         age = int(np.argmax(outputs[1]))
 

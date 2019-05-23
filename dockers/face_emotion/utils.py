@@ -11,7 +11,7 @@ import os
 
 class FaceEmotion(object):
     """
-    Initializes and handles de face detection model in PyTorch
+    Initializes and handles de face emotion model in PyTorch
     """
     def __init__(self, model_path):
         self.device = torch.device(
@@ -19,10 +19,26 @@ class FaceEmotion(object):
         self.model_path = model_path
         self.model = self.init_model()
 
-    def decode_img(self, data):
-        return Image.open(BytesIO(base64.b64decode(data)))
+    def decode_img(self, encoded_data):
+        """Decodes the encoded data comming from a request.
+
+        Args:
+            encoded_data (base64): data comming from the HTTP request.
+
+        Returns:
+            array: Data decoded into a usable format.
+
+        """
+        return Image.open(BytesIO(base64.b64decode(encoded_data)))
 
     def init_model(self):
+        """Initializes the machine learning model.
+
+        Returns:
+            model (object): Loaded pre-trained model used
+                to make predictions.
+
+        """
         model_name = "senet50_ferplus_dag"
         model_def_path = os.path.join(self.model_path, model_name + '.py')
         weights_path = os.path.join(self.model_path, model_name + '.pth')
@@ -57,6 +73,16 @@ class FaceEmotion(object):
         return mod
 
     def preprocess(self, image_array):
+        """Prerocess the data into the right format
+        to be feed in to the given model.
+
+        Args:
+            raw_data (array): Raw decoded data to be processed.
+
+        Returns:
+            array: The data ready to use in the given model.
+
+        """
         image = image_array.resize((224, 224))
         image = np.asarray(image) - np.array([131.0912, 103.8827, 91.4953])
         image = np.transpose(image, (2, 0, 1))
@@ -69,8 +95,19 @@ class FaceEmotion(object):
         e_x = np.exp(x - np.max(x))
         return e_x / e_x.sum()
 
-    def model_predict(self, data):
-        image = self.decode_img(data)
+    def model_predict(self, encoded_data):
+        """Decodes and preprocess the data, uses the
+        pretrained model to make predictions and
+        returns a well formatted json output.
+
+        Args
+            encoded_data (base64): data comming from the HTTP request.
+
+        Returns:
+            json: A response that contains the output from
+                the pre-trained model.
+        """
+        image = self.decode_img(encoded_data)
 
         image = self.preprocess(image)
         predictions = self.model(image)

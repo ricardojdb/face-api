@@ -10,6 +10,10 @@ import os
 
 
 class FaceRecognition(object):
+    """Handles data preprocess and forward pass
+    of the Facial Recognition model
+
+    """
     def __init__(self, model_path, dataset_path):
         self.device = torch.device(
             "cuda" if torch.cuda.is_available() else "cpu")
@@ -20,6 +24,13 @@ class FaceRecognition(object):
         self.init_database()
 
     def init_model(self):
+        """Initializes the machine learning model.
+
+        Returns:
+            model (object): Loaded pre-trained model used
+                to make predictions.
+
+        """
         model_name = "resnet50_ft_dag.pth"
         model = resnet50_ft_dag(os.path.join(self.model_path, model_name))
         model.to(self.device)
@@ -27,6 +38,13 @@ class FaceRecognition(object):
         return model
 
     def init_database(self):
+        """Initializes the database containing the encoded faces.
+
+        Returns:
+            dict: Loaded database of faces ready to be searched
+                  to make predictions.
+
+        """
         for path in os.listdir(self.dataset_path):
             try:
                 x = Image.open(
@@ -38,10 +56,29 @@ class FaceRecognition(object):
 
             self.database[path[:-4]] = embed
 
-    def decode_img(self, data):
-        return Image.open(BytesIO(base64.b64decode(data)))
+    def decode_img(self, encoded_data):
+        """Decodes the encoded data comming from a request.
+
+        Args:
+            encoded_data (base64): data comming from the HTTP request.
+
+        Returns:
+            array: Data decoded into a usable format.
+
+        """
+        return Image.open(BytesIO(base64.b64decode(encoded_data)))
 
     def preprocess(self, x, meta):
+        """Prerocess the data into the right format
+        to be feed in to the given model.
+
+        Args:
+            raw_data (array): Raw decoded data to be processed.
+
+        Returns:
+            array: The data ready to use in the given model.
+
+        """
         img = x.resize((224, 224))
         img = np.array(img, dtype=np.float32)
         img = img[:, :, ::-1]
@@ -51,12 +88,14 @@ class FaceRecognition(object):
         return img.unsqueeze(0).to(self.device)
 
     def l2_normalize(self, x, axis=-1, epsilon=1e-10):
+        """L2 Normalization function"""
         output = x / np.sqrt(
             np.maximum(np.sum(np.square(x),
                        axis=axis, keepdims=True), epsilon))
         return output
 
     def predict_embed(self, x):
+        """Moder forward prediction"""
         embed, _ = self.model(x)
 
         if embed.is_cuda:
@@ -67,6 +106,10 @@ class FaceRecognition(object):
         return self.l2_normalize(embed)
 
     def who_is_it(self, preds):
+        """Lookup function to search for the closest
+        face embedding in the databaes
+
+        """
         min_dist = 1e4
         name = ''
         for k, emb in self.database.items():
@@ -81,8 +124,20 @@ class FaceRecognition(object):
 
         return name, min_dist
 
-    def model_predict(self, data):
-        img = self.decode_img(data)
+    def model_predict(self, encoded_data):
+        """Decodes and preprocess the data, uses the
+        pretrained model to make predictions and
+        returns a well formatted json output.
+
+        Args
+            encoded_data (base64): data comming from the HTTP request.
+
+        Returns:
+            json: A response that contains the output from
+                the pre-trained model.
+
+        """
+        img = self.decode_img(encoded_data)
         img = self.preprocess(img, self.model.meta)
 
         preds = self.predict_embed(img)
