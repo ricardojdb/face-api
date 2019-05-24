@@ -129,6 +129,9 @@ class FaceRecognition(object):
         label = 'ID-' + str(idx)
         if label in self.database:
             self.database[name] = self.database.pop(label)
+            return True
+        else:
+            return False
 
     def model_predict(self, encoded_data):
         """Decodes and preprocess the data, uses the

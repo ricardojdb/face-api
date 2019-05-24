@@ -3,6 +3,7 @@ from flask_cors import CORS
 import numpy as np
 import torch
 import utils
+import json
 
 # Initialize the flask app
 app = Flask(__name__)
@@ -12,12 +13,20 @@ cors = CORS(app, resources={r"/predict": {"origins": "*"}})
 face_recognition = utils.FaceRecognition("models/", "images/")
 
 
-@app.route('/update', methods=['GET', 'POST'])
+@app.route('/update', methods=['POST'])
 def update():
     # Obtain the data from the request
-    idx = request.args.get('id')
-    name = request.args.get('name')
-    face_recognition.update_database(idx, name)
+    req = json.loads(request.get_json())
+    idx = req.get('id')
+    name = req.get('name')
+
+    status = face_recognition.update_database(idx, name)
+
+    response = {"success": False}
+    if status:
+        response["success"] = True
+
+    return json.dumps(response)
 
 
 @app.route('/predict', methods=['POST'])
