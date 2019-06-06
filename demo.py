@@ -87,7 +87,7 @@ while True:
 
             # Call Face Features API
             try:
-                agen_req = requests.get(
+                agen_req = requests.post(
                     url=f'http://{host}:7005/predict',
                     data=encode_img(roi_color_wide),
                     timeout=5)
@@ -100,7 +100,7 @@ while True:
 
             # Call Face Emotion API
             try:
-                emot_req = requests.get(
+                emot_req = requests.post(
                     url=f'http://{host}:7004/predict',
                     data=encode_img(roi_color),
                     timeout=5)
@@ -111,7 +111,7 @@ while True:
 
             # Facial Recognition
             try:
-                recog_req = requests.get(
+                recog_req = requests.post(
                     url=f'http://{host}:7006/predict',
                     data=encode_img(roi_color_wide),
                     timeout=5)
