@@ -6,6 +6,7 @@ import six
 import sys
 import cv2
 import os
+import re
 
 global colors, classes
 
@@ -68,6 +69,8 @@ def draw_box(image, label, gender, age, scores, classes, colors, box):
     fontScale = 0.4
     thickness = 1
 
+    if not label.startswith("ID"):
+        label = re.sub("[0-9]", "", label)
     label = "{} | {}, {}".format(label, gender, int(age))
 
     text_size = cv2.getTextSize(
@@ -135,6 +138,8 @@ def draw_box_emojis(image, label, gender, age, scores, classes, colors, box):
     """
     main_sentiment = classes[np.argmax(scores)]
 
+    if not label.startswith("ID"):
+        label = re.sub("[0-9]", "", label)
     # image_ori = np.copy(image)
     color_box = (68, 68, 68)
     xmin, ymin, xmax, ymax = np.array(box, dtype=int)
